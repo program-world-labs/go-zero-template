@@ -1,1 +1,2 @@
-Update(data *{{.upperStartCamelObject}}) error
+Update(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, softDelete bool) error
+UpdateWithFields(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, fields []string, softDelete bool) error

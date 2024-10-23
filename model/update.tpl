@@ -1,10 +1,77 @@
+func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, softDelete bool) error {
+	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, newData.{{.upperStartCamelPrimaryKey}}, softDelete)
+	if err!=nil{
+		return err
+	}
 
-func (m *default{{.upperStartCamelObject}}Model) Update(data *{{.upperStartCamelObject}}) error {
-	{{if .withCache}}{{.keys}}
-    _, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
-		return conn.Exec(query, {{.expressionValues}})
-	}, {{.keyValues}}){{else}}query := fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
-    _,err:=m.conn.Exec(query, {{.expressionValues}}){{end}}
+{{end}}	{{.keys}}
+    _, {{if .containsIndexCache}}err{{else}}err:{{end}}= m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		var query string
+		if softDelete {
+			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
+		} else {
+			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
+		}
+		return conn.ExecCtx(ctx, query, {{.expressionValues}})
+	}, {{.keyValues}}){{else}}var query string
+	if softDelete {
+		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
+	} else {
+		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
+	}
+    _,err:=m.conn.ExecCtx(ctx, query, {{.expressionValues}}){{end}}
+	return err
+}
+
+func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, fields []string, softDelete bool) error {
+	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, newData.{{.upperStartCamelPrimaryKey}}, softDelete)
+	if err!=nil{
+		return err
+	}
+
+{{end}}	{{.keys}}
+
+	{{.lowerStartCamelObject}}Map, err := m.structToMap({{if .containsIndexCache}}newData{{else}}data{{end}})
+	if err!=nil {
+		return err
+	}
+	setClause := make([]string, 0, len(fields))
+	args := make([]interface{}, 0, len(fields)+1)
+
+	rows := strings.Replace({{.lowerStartCamelObject}}Rows, "`", "", -1)
+	allowFields := strings.Split(rows, ",")
+	for _, field := range fields {
+		if !slices.Contains(allowFields, field) {
+			return fmt.Errorf("非法的字段名稱: %s", field)
+		}
+		setClause = append(setClause, fmt.Sprintf("`%s` = ?", field))
+		args = append(args, {{.lowerStartCamelObject}}Map[strcase.ToPascal(field)])
+	}
+
+	if len(setClause) == 0 {
+		return fmt.Errorf("没有指定要更新的字段")
+	}
+
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 更新 Redis 缓存
+		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
+		if err != nil {
+			return nil, err
+		}
+		var query string
+		if softDelete {
+			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, strings.Join(setClause, ", "))
+		} else {
+			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, strings.Join(setClause, ", "))
+		}
+		args = append(args, data.{{.upperStartCamelPrimaryKey}})
+		return conn.ExecCtx(ctx, query, args...)
+	}, {{.keyValues}}){{else}}var query string
+	if softDelete {
+		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, strings.Join(setClause, ", "))
+	} else {
+		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, strings.Join(setClause, ", "))
+	}
+    _,err:=m.conn.ExecCtx(ctx, query, {{.expressionValues}}){{end}}
 	return err
 }
