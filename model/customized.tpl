@@ -108,3 +108,26 @@ func (m *default{{.upperStartCamelObject}}Model) getFindsAllCountQueryString(fil
 	countQuery, args := m.addFilter(countQuery, filters, softDelete)
 	return countQuery, args
 }
+
+
+func migrateDB(path string, db *sql.DB) error {
+	driver, err := mysql.WithInstance(db, &{{if .postgreSql}}postgres{{else}}mysql{{end}}.Config{})
+	if err != nil {
+		log.Fatalf("Failed to get raw database connection: %v", err)
+	}
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://"+path,
+		"{{if .postgreSql}}postgres{{else}}mysql{{end}}",
+		driver,
+	)
+	if err != nil {
+		log.Fatalf("Failed to create migrate instance: %v", err)
+	}
+	// m.Down()
+	err = m.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
+
+	return nil
+}

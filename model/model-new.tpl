@@ -1,5 +1,15 @@
-func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, c cache.CacheConf, opts ...cache.Option{{end}}) *default{{.upperStartCamelObject}}Model {
+func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, migratePath string, c cache.CacheConf, opts ...cache.Option{{end}}) *default{{.upperStartCamelObject}}Model {
 	redisCache, err := redis.NewRedis(c[0].RedisConf)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := conn.RawDB()
+	if err != nil {
+		panic(err)
+	}
+
+	err = migrateDB(migratePath, db)
 	if err != nil {
 		panic(err)
 	}
