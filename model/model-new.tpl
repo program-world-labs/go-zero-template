@@ -18,6 +18,7 @@ func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, migr
 		{{if .withCache}}CachedConn: sqlc.NewNodeConn(conn, redisCache, opts...){{else}}conn:conn{{end}},
 		table:      {{.table}},
 		redisCache: redisCache,
+		conn:       conn,
 	}
 }
 

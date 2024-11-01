@@ -1,3 +1,8 @@
+func (m *default{{.upperStartCamelObject}}Model) GetConn() sqlx.SqlConn {
+	return m.conn
+}
+
+
 func (m *default{{.upperStartCamelObject}}Model) deleteRedisListCache(ctx context.Context, pattern string) error {
 	if m.redisCache != nil {
 		var cursor uint64

@@ -7,6 +7,7 @@ import (
 
 	{{.imports}}
 	"bear/libs/pwpkg/consul"
+	"bear/libs/pwpkg/middleware/trace"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -38,13 +39,13 @@ func main() {
 	})
 	defer s.Stop()
 
+	s.AddUnaryInterceptors(trace.TracerInterceptor())
+
 	// If local, register service to consul
-	logger := logx.WithContext(context.Background())
 	if c.Env == "local" {
 		err := consul.RegisterService(c.ListenOn, c.Consul)
 		if err != nil {
-			logger.Errorf("register service to consul failed: %v", err)
-			return
+			panic(err)
 		}
 	}
 

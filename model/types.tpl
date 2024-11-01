@@ -7,6 +7,7 @@ type (
 		{{if .withCache}}sqlc.CachedConn{{else}}conn sqlx.SqlConn{{end}}
 		table 		string
 		redisCache 	*redis.Redis
+		conn       	sqlx.SqlConn
 	}
 
 	{{.upperStartCamelObject}} struct {
