@@ -25,6 +25,7 @@ COPY ./apps/dist/go /app
 COPY ./apps/${APP_PATH}/{{.ExeFile}}/etc/{{.ExeFile}}.${APP_ENV}.yaml /app/etc/{{.ExeFile}}.yaml
 COPY ./resources/lang /app/resources/lang
 COPY ./resources/static /app/resources/static
+COPY ./resources/db/{{.ExeFile}} /app/resources/db/{{.ExeFile}}
 
 RUN echo "Building for TARGETPLATFORM=${TARGETPLATFORM}, TARGETARCH=${TARGETARCH}" && \
     if [ -f /app/{{.ExeFile}}_${TARGETOS}_${TARGETARCH} ]; then \
