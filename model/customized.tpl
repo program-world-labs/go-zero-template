@@ -98,10 +98,12 @@ func (m *default{{.upperStartCamelObject}}Model) getFindsAllQueryString(page *{{
 	}
 	listQuery, args := m.addFilter(listQuery, filters, softDelete)
 	listQuery, orderArgs := m.addOrder(listQuery, orders)
-	listQuery += " LIMIT ? OFFSET ?"
-
 	args = append(args, orderArgs...)
-	args = append(args, page.Limit, offset)
+	
+	if page.Limit > 0 {
+		listQuery += " LIMIT ? OFFSET ?"
+		args = append(args, page.Limit, offset)
+	}
 	return listQuery, args
 }
 

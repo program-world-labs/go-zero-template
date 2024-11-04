@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM 590183828335.dkr.ecr.ap-northeast-1.amazonaws.com/dockerhub/library/golang:{{.Version}}alpine3.20 AS builder
+FROM --platform=$BUILDPLATFORM 590183828335.dkr.ecr.ap-southeast-1.amazonaws.com/dockerhub/library/golang:{{.Version}}alpine3.20 AS builder
 
 LABEL stage=gobuilder
 
@@ -40,7 +40,7 @@ RUN echo "Building for TARGETPLATFORM=${TARGETPLATFORM}, TARGETARCH=${TARGETARCH
     fi
 
 
-FROM 590183828335.dkr.ecr.ap-northeast-1.amazonaws.com/dockerhub/library/{{.BaseImage}}
+FROM 590183828335.dkr.ecr.ap-southeast-1.amazonaws.com/dockerhub/library/{{.BaseImage}}
 
 {{if .HasTimezone}}COPY --from=builder /usr/share/zoneinfo/{{.Timezone}} /usr/share/zoneinfo/{{.Timezone}}
 ENV TZ {{.Timezone}}
