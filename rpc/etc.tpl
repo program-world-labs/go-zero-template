@@ -12,6 +12,10 @@ Telemetry:
   Sampler: 1.0
   Batcher: otlpgrpc
 Mode: dev
+Log:
+  Stat: false
+  Level: debug
+  Encoding: plain
 
 Env: ${APP_ENV}
 Version: ${APP_VERSION}

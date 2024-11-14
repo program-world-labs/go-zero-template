@@ -41,12 +41,9 @@ func main() {
 
 	s.AddUnaryInterceptors(trace.TracerInterceptor())
 
-	// If local, register service to consul
-	if c.Env == "local" {
-		err := consul.RegisterService(c.ListenOn, c.Consul)
-		if err != nil {
-			panic(err)
-		}
+	err := consul.RegisterService(c.ListenOn, c.Consul)
+	if err != nil {
+		panic(err)
 	}
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
