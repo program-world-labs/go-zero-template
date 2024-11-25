@@ -7,7 +7,7 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 {{end}}	{{.keys}}
     _, {{if .containsIndexCache}}err{{else}}err:{{end}}= m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		// 更新 Redis 缓存
-		err = m.deleteRedisListCache(ctx, cacheMembersListPrefix+"*")
+		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
 		if err != nil {
 			return nil, err
 		}
