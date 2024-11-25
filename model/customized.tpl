@@ -16,7 +16,13 @@ func (m *default{{.upperStartCamelObject}}Model) deleteRedisListCache(ctx contex
 			// 如果有键需要删除，使用 PipelinedCtx 批量删除
 			if len(keys) > 0 {
 				err = m.redisCache.PipelinedCtx(ctx, func(pipe redis.Pipeliner) error {
-					pipe.Del(ctx, keys...)
+					if m.isCluster {
+						for _, key := range keys {
+							pipe.Del(ctx, key)
+						}
+					} else {
+						pipe.Del(ctx, keys...)
+					}
 					return nil
 				})
 				if err != nil {

@@ -6,6 +6,12 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 
 {{end}}	{{.keys}}
     _, {{if .containsIndexCache}}err{{else}}err:{{end}}= m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 更新 Redis 缓存
+		err = m.deleteRedisListCache(ctx, cacheMembersListPrefix+"*")
+		if err != nil {
+			return nil, err
+		}
+		
 		var query string
 		if softDelete {
 			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)

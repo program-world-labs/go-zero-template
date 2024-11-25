@@ -8,6 +8,7 @@ type (
 		table 		string
 		redisCache 	*redis.Redis
 		conn       	sqlx.SqlConn
+		isCluster  	bool
 	}
 
 	{{.upperStartCamelObject}} struct {

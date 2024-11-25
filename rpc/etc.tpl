@@ -12,10 +12,6 @@ Telemetry:
   Sampler: 1.0
   Batcher: otlpgrpc
 Mode: dev
-Log:
-  Stat: false
-  Level: debug
-  Encoding: plain
 
 Env: ${APP_ENV}
 Version: ${APP_VERSION}
@@ -24,6 +20,25 @@ DataSource:
   Write: ${LOCAL_ENDPOINT}:3306
 RedisCluster:
   - Host: ${LOCAL_ENDPOINT}:6379
+Lang:
+  path: './resources/lang/rpc/'
+  support:
+    - 'en'
+    - 'es'
+    - 'id'
+    - 'ja'
+    - 'km'
+    - 'ko'
+    - 'lo'
+    - 'th'
+    - 'ug'
+    - 'vi'
+    - 'jp'
+    - 'zh-tw'
+    - 'zh-cn'
+  modules:
+    - 'game'
+  default: 'en'
 DatadogProfiler:
   Enabled: true
   Host: ${LOCAL_ENDPOINT}:8126
