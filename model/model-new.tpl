@@ -19,7 +19,7 @@ func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, migr
 		table:      {{.table}},
 		redisCache: redisCache,
 		conn:       conn,
-		isCluster:  len(c) > 1,
+		isCluster:  c[0].RedisConf.Type == "cluster",
 	}
 }
 
