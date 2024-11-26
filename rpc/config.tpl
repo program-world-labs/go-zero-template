@@ -1,7 +1,7 @@
 package config
 
 import (
-	"bear/libs/pwpkg/consul"
+	"needle/libs/pwpkg/consul"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -13,8 +13,7 @@ type Config struct {
 	Env     string
 	Version string
 	DataSource struct {
-		Read  string
-		Write string
+		Host string
 	}
 	RedisCluster cache.CacheConf
 	DatadogProfiler struct {

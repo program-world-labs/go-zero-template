@@ -5,7 +5,7 @@ import (
 
 	{{.imports}}
 
-	"github.com/zeromicro/go-zero/core/logx"
+	"needle/libs/pwpkg/pwlogger"
 )
 
 type {{.logicName}} struct {
@@ -18,7 +18,7 @@ func New{{.logicName}}(ctx context.Context,svcCtx *svc.ServiceContext) *{{.logic
 	return &{{.logicName}}{
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		Logger: pwlogger.InitLoggerWithContext(ctx),
 	}
 }
 {{.functions}}

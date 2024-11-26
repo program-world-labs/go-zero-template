@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	{{.imports}}
-	"bear/libs/pwpkg/consul"
-	"bear/libs/pwpkg/middleware/trace"
+	"needle/libs/pwpkg/consul"
+	"needle/libs/pwpkg/middleware/trace"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -39,11 +39,15 @@ func main() {
 	})
 	defer s.Stop()
 
-	s.AddUnaryInterceptors(trace.TracerInterceptor())
+	s.AddUnaryInterceptors(trace.TracerInterceptor(c.Name))
+	s.AddUnaryInterceptors(trace.TracerInterceptorLogger(c.Name))
 
-	err := consul.RegisterService(c.ListenOn, c.Consul)
-	if err != nil {
-		panic(err)
+	if c.Env == "local" {
+		err := consul.RegisterService(c.ListenOn, c.Consul)
+		if err != nil {
+			logger.Errorf("register service to consul failed: %v", err)
+			return
+		}
 	}
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
