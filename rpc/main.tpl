@@ -1,13 +1,12 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
 
 	{{.imports}}
 	"bear/libs/pwpkg/consul"
 	"bear/libs/pwpkg/middleware/trace"
+	"bear/libs/pwpkg/pwlogger"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -31,7 +30,6 @@ func main() {
 		tracer.Start()
 		defer tracer.Stop()
 	}
-	logger := logx.WithContext(context.Background())
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 {{range .serviceNames}}       {{.Pkg}}.Register{{.GRPCService}}Server(grpcServer, {{.ServerPkg}}.New{{.Service}}Server(ctx))
@@ -42,17 +40,18 @@ func main() {
 	})
 	defer s.Stop()
 
+	logger := pwlogger.NewDLogger(c.Name, c.Env, c.Version)
+	s.AddUnaryInterceptors(logger.UnaryServerInterceptor())
 	s.AddUnaryInterceptors(trace.TracerInterceptor(c.Name))
-	s.AddUnaryInterceptors(trace.TracerInterceptorLogger(c.Name, c.Env, c.Version))
 
 	if c.Env == "local" {
 		err := consul.RegisterService(c.ListenOn, c.Consul)
 		if err != nil {
-			logger.Errorf("register service to consul failed: %v", err)
-			return
+			logx.Errorf("register service to consul failed: %v", err)
+			panic(err)
 		}
 	}
 
-	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
+	logx.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }
