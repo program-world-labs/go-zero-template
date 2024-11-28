@@ -31,6 +31,7 @@ func main() {
 		tracer.Start()
 		defer tracer.Stop()
 	}
+	logger := logx.WithContext(context.Background())
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 {{range .serviceNames}}       {{.Pkg}}.Register{{.GRPCService}}Server(grpcServer, {{.ServerPkg}}.New{{.Service}}Server(ctx))
