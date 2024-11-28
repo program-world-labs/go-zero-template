@@ -1,7 +1,7 @@
 package config
 
 import (
-	"needle/libs/pwpkg/consul"
+	"bear/libs/pwpkg/consul"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
-	Consul  consul.Conf
+	Self  consul.Conf
 	Env     string
 	Version string
 	DataSource struct {

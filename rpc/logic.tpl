@@ -4,21 +4,20 @@ import (
 	"context"
 
 	{{.imports}}
-
-	"needle/libs/pwpkg/pwlogger"
+	"bear/libs/pwpkg/pwlogger"
 )
 
 type {{.logicName}} struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
-	logx.Logger
+	logger *pwlogger.DLogger
 }
 
 func New{{.logicName}}(ctx context.Context,svcCtx *svc.ServiceContext) *{{.logicName}} {
 	return &{{.logicName}}{
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		Logger: pwlogger.InitLoggerWithContext(ctx),
+		logger: pwlogger.NewDLogger(svcCtx.Config.Name, svcCtx.Config.Env, svcCtx.Config.Version),
 	}
 }
 {{.functions}}

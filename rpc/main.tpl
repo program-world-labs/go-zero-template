@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	{{.imports}}
-	"needle/libs/pwpkg/consul"
-	"needle/libs/pwpkg/middleware/trace"
+	"bear/libs/pwpkg/consul"
+	"bear/libs/pwpkg/middleware/trace"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -21,14 +21,16 @@ import (
 var configFile = flag.String("f", "etc/{{.serviceName}}.yaml", "the config file")
 
 func main() {
-	tracer.Start()
-	defer tracer.Stop()
-
 	flag.Parse()
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	ctx := svc.NewServiceContext(c)
+
+	if c.Env != "local" {
+		tracer.Start()
+		defer tracer.Stop()
+	}
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 {{range .serviceNames}}       {{.Pkg}}.Register{{.GRPCService}}Server(grpcServer, {{.ServerPkg}}.New{{.Service}}Server(ctx))
@@ -40,7 +42,7 @@ func main() {
 	defer s.Stop()
 
 	s.AddUnaryInterceptors(trace.TracerInterceptor(c.Name))
-	s.AddUnaryInterceptors(trace.TracerInterceptorLogger(c.Name))
+	s.AddUnaryInterceptors(trace.TracerInterceptorLogger(c.Name, c.Env, c.Version))
 
 	if c.Env == "local" {
 		err := consul.RegisterService(c.ListenOn, c.Consul)
