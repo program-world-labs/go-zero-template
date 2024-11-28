@@ -22,7 +22,7 @@ RedisCluster:
 DatadogProfiler:
   Enabled: true
   Host: ${LOCAL_ENDPOINT}:8126
-Consul:
+Self:
   Host: ${LOCAL_ENDPOINT}:8500 # consul endpoint
   Key: {{.serviceName}}.rpc # service name registered to Consul
   Meta:
