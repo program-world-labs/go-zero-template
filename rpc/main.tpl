@@ -4,9 +4,9 @@ import (
 	"flag"
 
 	{{.imports}}
-	"bear/libs/pwpkg/consul"
-	"bear/libs/pwpkg/middleware/trace"
-	"bear/libs/pwpkg/pwlogger"
+	"needle/libs/pwpkg/consul"
+	"needle/libs/pwpkg/middleware/trace"
+	"needle/libs/pwpkg/pwlogger"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"bear/libs/pwpkg/consul"
+	"needle/libs/pwpkg/consul"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
