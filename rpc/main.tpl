@@ -45,13 +45,13 @@ func main() {
 	s.AddUnaryInterceptors(trace.TracerInterceptor(c.Name))
 
 	if c.Env == "local" {
-		err := consul.RegisterService(c.ListenOn, c.Consul)
+		err := consul.RegisterService(c.ListenOn, c.Self)
 		if err != nil {
 			logx.Errorf("register service to consul failed: %v", err)
 			panic(err)
 		}
 	}
 
-	logx.Printf("Starting rpc server at %s...\n", c.ListenOn)
+	logx.Infof("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }
