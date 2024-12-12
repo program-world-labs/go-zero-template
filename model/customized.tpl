@@ -94,6 +94,12 @@ func (m *default{{.upperStartCamelObject}}Model) addOrder(query string, orders [
 }
 
 func (m *default{{.upperStartCamelObject}}Model) getFindsAllQueryString(page *{{.upperStartCamelObject}}Page, filters []*{{.upperStartCamelObject}}Filter, orders []*{{.upperStartCamelObject}}Order, softDelete bool) (string, []interface{}) {
+	if page == nil {
+		page = &{{.upperStartCamelObject}}Page{
+			Limit: 0,
+			Page:  0,
+		}
+	}
 	offset := (page.Page - 1) * page.Limit
 	if offset < 0 {
 		offset = 0
