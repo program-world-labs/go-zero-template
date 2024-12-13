@@ -5,6 +5,10 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.
 	}
 
 {{end}}	{{.keys}}
+	keys := []string{{{.keyValues}}}
+	for _, generator := range m.keyGenerators {
+		keys = append(keys, generator(data)...)
+	}
     _, err {{if .containsIndexCache}}={{else}}:={{end}} m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		{{if .withCache}}// 更新 Redis 缓存
 		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
@@ -21,7 +25,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.
 		}
 		args = append(args, {{.lowerStartCamelPrimaryKey}})
 		return conn.ExecCtx(ctx, query, args...)
-	}, {{.keyValues}}){{else}}query := fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
+	}, keys...){{else}}query := fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
 		_,err:=m.conn.ExecCtx(ctx, query, {{.lowerStartCamelPrimaryKey}}){{end}}
 	return err
 }

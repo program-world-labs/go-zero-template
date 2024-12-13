@@ -5,6 +5,10 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 	}
 
 {{end}}	{{.keys}}
+	keys := []string{{{.keyValues}}}
+	for _, generator := range m.keyGenerators {
+		keys = append(keys, generator(data)...)
+	}
     _, {{if .containsIndexCache}}err{{else}}err:{{end}}= m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		// 更新 Redis 缓存
 		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
@@ -19,7 +23,7 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
 		}
 		return conn.ExecCtx(ctx, query, {{.expressionValues}})
-	}, {{.keyValues}}){{else}}var query string
+	}, keys...){{else}}var query string
 	if softDelete {
 		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
 	} else {
@@ -36,7 +40,10 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 	}
 
 {{end}}	{{.keys}}
-
+	keys := []string{{{.keyValues}}}
+	for _, generator := range m.keyGenerators {
+		keys = append(keys, generator(data)...)
+	}
 	{{.lowerStartCamelObject}}Map, err := m.structToMap({{if .containsIndexCache}}newData{{else}}data{{end}})
 	if err!=nil {
 		return err
@@ -72,7 +79,7 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 		}
 		args = append(args, data.{{.upperStartCamelPrimaryKey}})
 		return conn.ExecCtx(ctx, query, args...)
-	}, {{.keyValues}}){{else}}var query string
+	}, keys...){{else}}var query string
 	if softDelete {
 		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, strings.Join(setClause, ", "))
 	} else {
