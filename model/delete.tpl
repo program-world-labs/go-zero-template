@@ -6,7 +6,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.
 
 {{end}}	{{.keys}}
 	keys := []string{
-		{{.keyValues}}
+		{{.keyValues}},
 	}
 	for _, generator := range m.keyGenerators {
 		keys = append(keys, generator(data)...)

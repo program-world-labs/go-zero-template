@@ -6,7 +6,7 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 
 {{end}}	{{.keys}}
 	keys := []string{
-		{{.keyValues}}
+		{{.keyValues}},
 	}
 	for _, generator := range m.keyGenerators {
 		keys = append(keys, generator(data)...)
@@ -43,7 +43,7 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 
 {{end}}	{{.keys}}
 	keys := []string{
-		{{.keyValues}}
+		{{.keyValues}},
 	}
 	for _, generator := range m.keyGenerators {
 		keys = append(keys, generator(data)...)

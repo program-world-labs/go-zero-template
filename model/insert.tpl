@@ -2,7 +2,7 @@ func (m *default{{.upperStartCamelObject}}Model) Insert(ctx context.Context, dat
 	{{if .withCache}}
 	{{.keys}}
 	keys := []string{
-		{{.keyValues}}
+		{{.keyValues}},
 	}
 	for _, generator := range m.keyGenerators {
 		keys = append(keys, generator(data)...)
