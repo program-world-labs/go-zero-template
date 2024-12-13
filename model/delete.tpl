@@ -1,11 +1,10 @@
 func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}, softDelete bool) error {
-	{{if .withCache}}{{if .containsIndexCache}}
-	data, err := m.FindOne(ctx, {{.lowerStartCamelPrimaryKey}}, softDelete)
-	if err != nil {
+	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, {{.lowerStartCamelPrimaryKey}}, softDelete)
+	if err!=nil{
 		return err
 	}
-	{{end}}
-	{{.keys}}
+
+{{end}}	{{.keys}}
 	keys := []string{
 		{{.keyValues}}
 	}
