@@ -1,1 +1,0 @@
-Delete(ctx context.Context, data *{{.upperStartCamelObject}}, softDelete bool) error
