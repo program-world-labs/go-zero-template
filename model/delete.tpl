@@ -4,9 +4,10 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, dat
 		return err
 	}
 
-{{end}}	{{.keys}}
+{{end}}
+	treatmentsIdKey := fmt.Sprintf("%s%v", cache{{.upperStartCamelObject}}IdPrefix, data.Id)
 	keys := []string{
-		{{.keyValues}},
+		treatmentsIdKey,
 	}
 	for _, generator := range m.keyGenerators {
 		keys = append(keys, generator(data)...)
