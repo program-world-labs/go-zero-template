@@ -1,5 +1,5 @@
 func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, data *{{.upperStartCamelObject}}, softDelete bool) error {
-	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, data.{{.originalPrimaryKey}}, softDelete)
+	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, data.Id, softDelete)
 	if err!=nil{
 		return err
 	}
@@ -25,7 +25,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, dat
 		} else {
 			query = fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
 		}
-		args = append(args, data.{{.originalPrimaryKey}})
+		args = append(args, data.Id)
 		return conn.ExecCtx(ctx, query, args...)
 	}, keys...){{else}}query := fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
 		_,err:=m.conn.ExecCtx(ctx, query, {{.lowerStartCamelPrimaryKey}}){{end}}
