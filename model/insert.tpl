@@ -10,7 +10,7 @@ func (m *default{{.upperStartCamelObject}}Model) Insert(ctx context.Context, dat
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		{{if .withCache}}
 		// 更新 Redis 缓存
-		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
+		err = m.deleteRedisPatternCache(ctx, data)
 		if err != nil {
 			return nil, err
 		}

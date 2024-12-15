@@ -1,1 +1,1 @@
-Delete(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}, softDelete bool) error
+Delete(ctx context.Context, data *{{.upperStartCamelObject}}, softDelete bool) error

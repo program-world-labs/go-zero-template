@@ -12,6 +12,7 @@ type (
 		conn       	sqlx.SqlConn
 		isCluster  	bool
 		keyGenerators []CacheKeyGenerator
+		patternGenerators []CacheKeyGenerator
 	}
 
 	{{.upperStartCamelObject}} struct {

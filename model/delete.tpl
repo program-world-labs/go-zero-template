@@ -1,4 +1,4 @@
-func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}, softDelete bool) error {
+func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, data *{{.upperStartCamelObject}}, softDelete bool) error {
 	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, {{.lowerStartCamelPrimaryKey}}, softDelete)
 	if err!=nil{
 		return err
@@ -13,7 +13,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.
 	}
     _, err {{if .containsIndexCache}}={{else}}:={{end}} m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		{{if .withCache}}// 更新 Redis 缓存
-		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
+		err = m.deleteRedisPatternCache(ctx, data)
 		if err != nil {
 			return nil, err
 		}{{end}}
@@ -25,7 +25,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.
 		} else {
 			query = fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
 		}
-		args = append(args, {{.lowerStartCamelPrimaryKey}})
+		args = append(args, data.{{.lowerStartCamelPrimaryKey}})
 		return conn.ExecCtx(ctx, query, args...)
 	}, keys...){{else}}query := fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
 		_,err:=m.conn.ExecCtx(ctx, query, {{.lowerStartCamelPrimaryKey}}){{end}}

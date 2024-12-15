@@ -3,36 +3,47 @@ func (m *default{{.upperStartCamelObject}}Model) GetConn() sqlx.SqlConn {
 }
 
 
-func (m *default{{.upperStartCamelObject}}Model) deleteRedisListCache(ctx context.Context, pattern string) error {
-	if m.redisCache != nil {
-		var cursor uint64
-		for {
-			// 使用 SCAN 获取匹配的键
-			keys, nextCursor, err := m.redisCache.ScanCtx(ctx, cursor, pattern, 0)
-			if err != nil {
-				return err
-			}
+func (m *default{{.upperStartCamelObject}}Model) deleteRedisPatternCache(ctx context.Context, data *{{.upperStartCamelObject}}) error {
+	if m.redisCache == nil {
+		return nil
+	}
 
-			// 如果有键需要删除，使用 PipelinedCtx 批量删除
-			if len(keys) > 0 {
-				err = m.redisCache.PipelinedCtx(ctx, func(pipe redis.Pipeliner) error {
-					if m.isCluster {
-						for _, key := range keys {
-							pipe.Del(ctx, key)
-						}
-					} else {
-						pipe.Del(ctx, keys...)
-					}
-					return nil
-				})
+	if len(m.patternGenerators) == 0 {
+		return nil
+	}
+
+	var cursor uint64
+	for _, generator := range m.patternGenerators {
+		patterns := generator(data)
+		for _, pattern := range patterns {
+			for {
+				// 使用 SCAN 获取匹配的键
+				keys, nextCursor, err := m.redisCache.ScanCtx(ctx, cursor, pattern, 0)
 				if err != nil {
 					return err
 				}
-			}
 
-			cursor = nextCursor
-			if cursor == 0 {
-				break
+				// 如果有键需要删除，使用 PipelinedCtx 批量删除
+				if len(keys) > 0 {
+					err = m.redisCache.PipelinedCtx(ctx, func(pipe redis.Pipeliner) error {
+						if m.isCluster {
+							for _, key := range keys {
+								pipe.Del(ctx, key)
+							}
+						} else {
+							pipe.Del(ctx, keys...)
+						}
+						return nil
+					})
+					if err != nil {
+						return err
+					}
+				}
+
+				cursor = nextCursor
+				if cursor == 0 {
+					break
+				}
 			}
 		}
 	}

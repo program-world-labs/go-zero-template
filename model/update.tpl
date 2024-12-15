@@ -9,11 +9,11 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 		{{.keyValues}},
 	}
 	for _, generator := range m.keyGenerators {
-		keys = append(keys, generator(data)...)
+		keys = append(keys, generator({{if .containsIndexCache}}newData{{else}}data{{end}})...)
 	}
     _, {{if .containsIndexCache}}err{{else}}err:{{end}}= m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		// 更新 Redis 缓存
-		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
+		err = m.deleteRedisPatternCache(ctx, {{if .containsIndexCache}}newData{{else}}data{{end}})
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +46,7 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 		{{.keyValues}},
 	}
 	for _, generator := range m.keyGenerators {
-		keys = append(keys, generator(data)...)
+		keys = append(keys, generator({{if .containsIndexCache}}newData{{else}}data{{end}})...)
 	}
 	{{.lowerStartCamelObject}}Map, err := m.structToMap({{if .containsIndexCache}}newData{{else}}data{{end}})
 	if err!=nil {
@@ -71,7 +71,7 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		// 更新 Redis 缓存
-		err = m.deleteRedisListCache(ctx, cache{{.upperStartCamelObject}}ListPrefix+"*")
+		err = m.deleteRedisPatternCache(ctx, {{if .containsIndexCache}}newData{{else}}data{{end}})
 		if err != nil {
 			return nil, err
 		}
