@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM 590183828335.dkr.ecr.ap-southeast-1.amazonaws.com/dockerhub/library/golang:{{.Version}}alpine3.20 AS builder
+FROM --platform=$BUILDPLATFORM golang:{{.Version}}-alpine3.20 AS builder
 
 LABEL stage=gobuilder
 
@@ -11,6 +11,8 @@ ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 ARG APP_PATH
 ENV APP_PATH=$APP_PATH
+ARG APP_TYPE
+ENV APP_TYPE=$APP_TYPE
 
 RUN apk update --no-cache && apk add --no-cache tzdata git
 
@@ -22,11 +24,11 @@ COPY ./go.work .
 COPY ./go.work.sum .
 
 COPY ./apps/dist/go /app
-COPY ./apps/${APP_PATH}/{{.ExeFile}}/etc/{{.ExeFile}}.${APP_ENV}.yaml /app/etc/{{.ExeFile}}.yaml
+COPY ./apps/${APP_PATH}/{{.ExeFile}}/etc/{{.ExeFile}}.${APP_ENV}.${APP_TYPE}.yaml /app/etc/{{.ExeFile}}.yaml
 COPY ./resources/lang /app/resources/lang
 COPY ./resources/static /app/resources/static
 COPY ./resources/db/{{.ExeFile}} /app/resources/db/{{.ExeFile}}
-
+COPY ./libs/protoc/event /app/resources/event
 RUN echo "Building for TARGETPLATFORM=${TARGETPLATFORM}, TARGETARCH=${TARGETARCH}" && \
     if [ -f /app/{{.ExeFile}}_${TARGETOS}_${TARGETARCH} ]; then \
     echo "{{.ExeFile}} exists for ${TARGETARCH}"; \
@@ -40,7 +42,7 @@ RUN echo "Building for TARGETPLATFORM=${TARGETPLATFORM}, TARGETARCH=${TARGETARCH
     fi
 
 
-FROM 590183828335.dkr.ecr.ap-southeast-1.amazonaws.com/dockerhub/library/{{.BaseImage}}
+FROM {{.BaseImage}}
 
 {{if .HasTimezone}}COPY --from=builder /usr/share/zoneinfo/{{.Timezone}} /usr/share/zoneinfo/{{.Timezone}}
 ENV TZ {{.Timezone}}
