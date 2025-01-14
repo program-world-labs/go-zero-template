@@ -30,9 +30,9 @@ COPY ./resources/static /app/resources/static
 COPY ./resources/db/{{.ExeFile}} /app/resources/db/{{.ExeFile}}
 COPY ./libs/protoc/event /app/resources/event
 RUN echo "Building for TARGETPLATFORM=${TARGETPLATFORM}, TARGETARCH=${TARGETARCH}" && \
-    if [ -f /app/{{.ExeFile}}_${TARGETOS}_${TARGETARCH} ]; then \
+    if [ -f /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} ]; then \
     echo "{{.ExeFile}} exists for ${TARGETARCH}"; \
-    mv /app/{{.ExeFile}}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}; \
+    mv /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}; \
     else \
     echo "Building {{.ExeFile}} for ${TARGETARCH}"; \
     cd ./apps/${APP_PATH}/{{.ExeFile}} \
