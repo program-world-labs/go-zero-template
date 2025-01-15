@@ -30,9 +30,8 @@ COPY ./resources/static /app/resources/static
 COPY ./resources/db /app/resources/db
 COPY ./libs/protoc/event /app/resources/event
 RUN echo "Building for TARGETOS=${TARGETOS}, TARGETARCH=${TARGETARCH}" && \
-    if [ -f /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} ]; then \
+    if [ -f /app/{{.ExeFile}} ]; then \
     echo "{{.ExeFile}} exists for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
-    mv /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}; \
     else \
     echo "does not exist from /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH}"; \
     echo "Building {{.ExeFile}} for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
