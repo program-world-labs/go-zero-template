@@ -23,18 +23,19 @@ COPY ./libs ./libs
 COPY ./go.work .
 COPY ./go.work.sum .
 
-COPY ./apps/dist/go /app
+COPY ./apps/dist/go/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}
 COPY ./apps/${APP_PATH}/{{.ExeFile}}/etc/{{.ExeFile}}.${APP_ENV}.${APP_TYPE}.yaml /app/etc/{{.ExeFile}}.yaml
 COPY ./resources/lang /app/resources/lang
 COPY ./resources/static /app/resources/static
-COPY ./resources/db/{{.ExeFile}} /app/resources/db/{{.ExeFile}}
+COPY ./resources/db /app/resources/db
 COPY ./libs/protoc/event /app/resources/event
-RUN echo "Building for TARGETPLATFORM=${TARGETPLATFORM}, TARGETARCH=${TARGETARCH}" && \
+RUN echo "Building for TARGETOS=${TARGETOS}, TARGETARCH=${TARGETARCH}" && \
     if [ -f /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} ]; then \
-    echo "{{.ExeFile}} exists for ${TARGETARCH}"; \
+    echo "{{.ExeFile}} exists for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
     mv /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}; \
     else \
-    echo "Building {{.ExeFile}} for ${TARGETARCH}"; \
+    echo "does not exist from /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH}"; \
+    echo "Building {{.ExeFile}} for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
     cd ./apps/${APP_PATH}/{{.ExeFile}} \
     go work sync; \
     go mod tidy; \
