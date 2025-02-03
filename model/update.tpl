@@ -1,5 +1,9 @@
-func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, softDelete bool) error {
-	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, newData.{{.upperStartCamelPrimaryKey}}, softDelete)
+func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, options ...OptionFunc) error {
+	option := &Option{}
+	for _, opt := range options {
+		opt(option)
+	}
+	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, newData.{{.upperStartCamelPrimaryKey}}, options...)
 	if err!=nil{
 		return err
 	}
@@ -19,24 +23,36 @@ func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, {{i
 		}
 		
 		var query string
-		if softDelete {
+		if option.isSoftDelete {
 			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
 		} else {
 			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
 		}
+		if option.session != nil {
+			return option.session.ExecCtx(ctx, query, {{.expressionValues}})
+		}
 		return conn.ExecCtx(ctx, query, {{.expressionValues}})
 	}, keys...){{else}}var query string
-	if softDelete {
+	if option.isSoftDelete {
 		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
 	} else {
 		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, {{.lowerStartCamelObject}}RowsWithPlaceHolder)
 	}
-    _,err:=m.conn.ExecCtx(ctx, query, {{.expressionValues}}){{end}}
+	var err error
+	if option.session != nil {
+		_, err = option.session.ExecCtx(ctx, query, {{.expressionValues}})
+	} else {
+		_, err = m.conn.ExecCtx(ctx, query, {{.expressionValues}})
+	}{{end}}
 	return err
 }
 
-func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, fields []string, softDelete bool) error {
-	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, newData.{{.upperStartCamelPrimaryKey}}, softDelete)
+func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Context, {{if .containsIndexCache}}newData{{else}}data{{end}} *{{.upperStartCamelObject}}, fields []string, options ...OptionFunc) error {
+	option := &Option{}
+	for _, opt := range options {
+		opt(option)
+	}
+	{{if .withCache}}{{if .containsIndexCache}}data, err:=m.FindOne(ctx, newData.{{.upperStartCamelPrimaryKey}}, options...)
 	if err!=nil{
 		return err
 	}
@@ -76,19 +92,27 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 			return nil, err
 		}
 		var query string
-		if softDelete {
+		if option.isSoftDelete {
 			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, strings.Join(setClause, ", "))
 		} else {
 			query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, strings.Join(setClause, ", "))
 		}
 		args = append(args, data.{{.upperStartCamelPrimaryKey}})
+		if option.session != nil {
+			return option.session.ExecCtx(ctx, query, args...)
+		}
 		return conn.ExecCtx(ctx, query, args...)
 	}, keys...){{else}}var query string
-	if softDelete {
+	if option.isSoftDelete {
 		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and `deleted_at` is null", m.table, strings.Join(setClause, ", "))
 	} else {
 		query = fmt.Sprintf("update %s set %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table, strings.Join(setClause, ", "))
 	}
-    _,err:=m.conn.ExecCtx(ctx, query, {{.expressionValues}}){{end}}
+	var err error
+	if option.session != nil {
+		_, err = option.session.ExecCtx(ctx, query, {{.expressionValues}})
+	} else {
+		_, err = m.conn.ExecCtx(ctx, query, {{.expressionValues}})
+	}{{end}}
 	return err
 }

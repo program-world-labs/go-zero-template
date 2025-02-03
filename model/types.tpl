@@ -1,3 +1,23 @@
+type Option struct {
+	session sqlx.Session
+	isSoftDelete bool
+}
+
+type OptionFunc func(*Option)
+
+func WithSession(session sqlx.Session) OptionFunc {
+	return func(o *Option) {
+		o.session = session
+	}
+}
+
+func WithIsSoftDelete(isSoftDelete bool) OptionFunc {
+	return func(o *Option) {
+		o.isSoftDelete = isSoftDelete
+	}
+}
+
+
 type (
 	{{.lowerStartCamelObject}}Model interface{
 		{{.method}}

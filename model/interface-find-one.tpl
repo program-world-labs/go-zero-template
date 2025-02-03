@@ -1,2 +1,2 @@
-FindOne(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}, softDelete bool) (*{{.upperStartCamelObject}}, error)
-FindList(ctx context.Context, page *{{.upperStartCamelObject}}Page, filters []*{{.upperStartCamelObject}}Filter, orders []*{{.upperStartCamelObject}}Order, softDelete bool) ([]*{{.upperStartCamelObject}}, int32, error)
+FindOne(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}, options ...OptionFunc) (*{{.upperStartCamelObject}}, error)
+FindList(ctx context.Context, page *{{.upperStartCamelObject}}Page, filters []*{{.upperStartCamelObject}}Filter, orders []*{{.upperStartCamelObject}}Order, options ...OptionFunc) ([]*{{.upperStartCamelObject}}, int32, error)
