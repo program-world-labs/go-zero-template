@@ -37,7 +37,7 @@ func (m *default{{.upperStartCamelObject}}Model) Insert(ctx context.Context, dat
 	return ret,err
 }
 
-func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, data *{{.upperStartCamelObject}}, softDelete bool, options ...OptionFunc) error {
+func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, data *{{.upperStartCamelObject}}, options ...OptionFunc) error {
 	option := &Option{}
 	for _, opt := range options {
 		opt(option)
@@ -58,7 +58,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, dat
 		}{{end}}
 		var query string
 		args := []interface{}{}
-		if softDelete {
+		if option.isSoftDelete {
 			query = fmt.Sprintf("update %s set `deleted_at` = FROM_UNIXTIME({{if .postgreSql}}$1{{else}}?{{end}}) where {{.originalPrimaryKey}} = {{if .postgreSql}}$2{{else}}?{{end}}", m.table)
 			args = append(args, time.Now().Unix())
 		} else {
