@@ -131,7 +131,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, dat
 	for _, generator := range m.keyGenerators {
 		keys = append(keys, generator(data)...)
 	}
-    _, err {{if .containsIndexCache}}={{else}}:={{end}} m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+    _, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		{{if .withCache}}// 更新 Redis 缓存
 		err = m.deleteRedisPatternCache(ctx, data)
 		if err != nil {
