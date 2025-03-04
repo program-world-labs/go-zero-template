@@ -87,7 +87,7 @@ func (m *default{{.upperStartCamelObject}}Model) addFilter(query string, filters
 		switch operator {
 		case "IN", "NOT IN":
 			val := reflect.ValueOf(filter.Value)
-			if val.Kind() != reflect.Slice {
+			if val.Kind() != reflect.Slice || val.Len() == 0 {
 				query += "1=0"
 				continue
 			}
