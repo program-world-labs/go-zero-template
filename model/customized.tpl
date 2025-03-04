@@ -83,8 +83,37 @@ func (m *default{{.upperStartCamelObject}}Model) addFilter(query string, filters
 		if idx > 0 {
 			query += " AND "
 		}
-		query += fmt.Sprintf("`%s` %s ?", filter.Field, filter.Operator)
-		args = append(args, filter.Value)
+		operator := strings.ToUpper(filter.Operator)
+		switch operator {
+		case "IN", "NOT IN":
+			val := reflect.ValueOf(filter.Value)
+			if val.Kind() != reflect.Slice {
+				query += "1=0"
+				continue
+			}
+			placeholders := make([]string, val.Len())
+			for i := 0; i < val.Len(); i++ {
+				placeholders[i] = "?"
+				args = append(args, val.Index(i).Interface())
+			}
+			query += fmt.Sprintf("`%s` %s (%s)", filter.Field, operator, strings.Join(placeholders, ","))
+
+		case "BETWEEN":
+			val := reflect.ValueOf(filter.Value)
+			if val.Kind() != reflect.Slice || val.Len() != 2 {
+				query += "1=0"
+				continue
+			}
+			query += fmt.Sprintf("`%s` BETWEEN ? AND ?", filter.Field)
+			args = append(args, val.Index(0).Interface(), val.Index(1).Interface())
+
+		case "IS NULL", "IS NOT NULL":
+			query += fmt.Sprintf("`%s` %s", filter.Field, operator)
+
+		default:
+			query += fmt.Sprintf("`%s` %s ?", filter.Field, operator)
+			args = append(args, filter.Value)
+		}
 	}
 	return query, args
 }
