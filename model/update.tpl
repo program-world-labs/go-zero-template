@@ -117,7 +117,6 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithFields(ctx context.Co
 	return err
 }
 
-
 func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, data *{{.upperStartCamelObject}}, options ...OptionFunc) error {
 	option := &Option{}
 	for _, opt := range options {
@@ -145,7 +144,7 @@ func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, dat
 		} else {
 			query = fmt.Sprintf("delete from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}}", m.table)
 		}
-		args = append(args, data.Id)
+		args = append(args, data.{{.upperStartCamelPrimaryKey}})
 		if option.session != nil {
 			return option.session.ExecCtx(ctx, query, args...)
 		}

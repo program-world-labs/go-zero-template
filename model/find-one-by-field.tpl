@@ -14,9 +14,17 @@ func (m *default{{.upperStartCamelObject}}Model) FindOneBy{{.upperField}}(ctx co
 			query = fmt.Sprintf("select %s from %s where {{.originalField}} limit 1", {{.lowerStartCamelObject}}Rows, m.table)
 		}
 		if option.session != nil {
-			return option.session.QueryRowCtx(ctx, &resp, query, {{.lowerStartCamelField}})
+			err := option.session.QueryRowCtx(ctx, &resp, query, {{.lowerStartCamelField}})
+			if err != nil {
+				return nil, err
+			}
+			return resp.{{.upperStartCamelPrimaryKey}}, nil
 		}
-		return conn.QueryRowCtx(ctx, &resp, query, {{.lowerStartCamelField}})
+		err := conn.QueryRowCtx(ctx, &resp, query, {{.lowerStartCamelField}})
+		if err != nil {
+			return nil, err
+		}
+		return resp.{{.upperStartCamelPrimaryKey}}, nil
 	}, m.queryPrimary)
 	switch err {
 	case nil:
