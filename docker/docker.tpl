@@ -24,7 +24,7 @@ COPY ./go.work .
 COPY ./go.work.sum .
 
 COPY ./apps/dist/go/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}
-COPY ./apps/${APP_PATH}/{{.ExeFile}}/etc/{{.ExeFile}}.${APP_ENV}.${APP_TYPE}.yaml /app/etc/{{.ExeFile}}.yaml
+COPY ${APP_PATH}/etc/{{.ExeFile}}.${APP_ENV}.${APP_TYPE}.yaml /app/etc/{{.ExeFile}}.yaml
 COPY ./resources/lang /app/resources/lang
 COPY ./resources/static /app/resources/static
 COPY ./resources/db /app/resources/db
@@ -35,8 +35,8 @@ RUN echo "Building for TARGETOS=${TARGETOS}, TARGETARCH=${TARGETARCH}" && \
     else \
     echo "does not exist from /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH}"; \
     echo "Building {{.ExeFile}} for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
-    cd ./apps/${APP_PATH}/{{.ExeFile}} \
     go work sync; \
+    cd ${APP_PATH} \
     go mod tidy; \
     GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-s -w" -o /app/{{.ExeFile}} {{.GoMainFrom}}; \
     fi
