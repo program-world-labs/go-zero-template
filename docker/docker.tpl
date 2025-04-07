@@ -18,10 +18,6 @@ RUN apk update --no-cache && apk add --no-cache tzdata git
 
 WORKDIR /build
 
-COPY ./apps ./apps
-COPY ./libs ./libs
-COPY ./go.work .
-COPY ./go.work.sum .
 
 COPY ./apps/dist/go/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH} /app/{{.ExeFile}}
 COPY ${APP_PATH}/etc/{{.ExeFile}}.${APP_ENV}.${APP_TYPE}.yaml /app/etc/{{.ExeFile}}.yaml
@@ -35,6 +31,10 @@ RUN echo "Building for TARGETOS=${TARGETOS}, TARGETARCH=${TARGETARCH}" && \
     else \
     echo "does not exist from /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH}"; \
     echo "Building {{.ExeFile}} for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
+    cp ./apps ./apps
+    cp ./libs ./libs
+    cp ./go.work .
+    cp ./go.work.sum .
     go work sync; \
     cd ${APP_PATH} \
     go mod tidy; \
