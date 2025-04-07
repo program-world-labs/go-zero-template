@@ -31,13 +31,13 @@ RUN echo "Building for TARGETOS=${TARGETOS}, TARGETARCH=${TARGETARCH}" && \
     else \
     echo "does not exist from /app/{{.ExeFile}}_${APP_TYPE}_${TARGETOS}_${TARGETARCH}"; \
     echo "Building {{.ExeFile}} for ${TARGETOS} ${TARGETARCH} ${APP_TYPE}"; \
-    cp ./apps ./apps
-    cp ./libs ./libs
-    cp ./go.work .
-    cp ./go.work.sum .
-    go work sync; \
-    cd ${APP_PATH} \
-    go mod tidy; \
+    cp ./apps ./apps && \
+    cp ./libs ./libs && \
+    cp ./go.work . && \
+    cp ./go.work.sum . && \
+    go work sync && \
+    cd ${APP_PATH} && \
+    go mod tidy && \
     GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-s -w" -o /app/{{.ExeFile}} {{.GoMainFrom}}; \
     fi
 
